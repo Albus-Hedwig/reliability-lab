@@ -1,0 +1,11 @@
+{"actor": "client", "attempt": 1, "details": {}, "event": "request_sent", "scenario": "idempotent", "seq": 1, "time_ns": 85707063568}
+{"actor": "server", "attempt": 1, "details": {}, "event": "request_received", "scenario": "idempotent", "seq": 2, "time_ns": 85709476538}
+{"actor": "server", "attempt": 1, "details": {"order_count": 1, "order_id": 1}, "event": "order_committed", "scenario": "idempotent", "seq": 3, "time_ns": 85710912548}
+{"actor": "server", "attempt": 1, "details": {"order_id": 1}, "event": "response_dropped", "scenario": "idempotent", "seq": 4, "time_ns": 85712183881}
+{"actor": "client", "attempt": 1, "details": {"error": "RemoteDisconnected"}, "event": "response_lost", "scenario": "idempotent", "seq": 5, "time_ns": 85713489941}
+{"actor": "client", "attempt": 2, "details": {}, "event": "retry_scheduled", "scenario": "idempotent", "seq": 6, "time_ns": 85715308131}
+{"actor": "client", "attempt": 2, "details": {}, "event": "request_sent", "scenario": "idempotent", "seq": 7, "time_ns": 85716299613}
+{"actor": "server", "attempt": 2, "details": {}, "event": "request_received", "scenario": "idempotent", "seq": 8, "time_ns": 85717499038}
+{"actor": "server", "attempt": 2, "details": {"order_count": 1, "order_id": 1}, "event": "order_reused", "scenario": "idempotent", "seq": 9, "time_ns": 85719055419}
+{"actor": "server", "attempt": 2, "details": {"order_id": 1, "status": 201}, "event": "response_started", "scenario": "idempotent", "seq": 10, "time_ns": 85720273271}
+{"actor": "client", "attempt": 2, "details": {"order_id": 1, "status": 201}, "event": "response_received", "scenario": "idempotent", "seq": 11, "time_ns": 85721645481}

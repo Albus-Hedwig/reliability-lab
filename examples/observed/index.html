@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reliability Lab · Response lost, order committed</title>
+<style>body{background:#101820;color:#e7edf2;font:18px/1.6 system-ui,sans-serif;max-width:960px;margin:64px auto;padding:24px}
+h1{font-size:clamp(32px,6vw,56px);line-height:1.1}a{color:#7dd3fc}main{display:flex;flex-wrap:wrap;gap:24px}
+article{flex:1;min-width:250px;border:1px solid #43515f;border-radius:12px;padding:24px}strong{color:#b5eea5}
+small{color:#b5c1cc}a:focus-visible{outline:3px solid #fff;outline-offset:4px}</style>
+<small>RELIABILITY LAB / REAL HTTP + SQLITE</small><h1>Response lost.<br>Order committed.</h1>
+<p>The service commits an order, deliberately closes the connection before responding, and receives a retry.
+Compare the observed persistence counts below.</p><main><article><h2>Plain</h2><p><strong>2 orders</strong> last observed in SQLite.</p><a href="plain.html">Open interactive replay →</a><p><a href="plain.json">Diagram data</a> · <a href="plain/lab.sqlite3">SQLite database</a></p></article><article><h2>Idempotent</h2><p><strong>1 orders</strong> last observed in SQLite.</p><a href="idempotent.html">Open interactive replay →</a><p><a href="idempotent.json">Diagram data</a> · <a href="idempotent/lab.sqlite3">SQLite database</a></p></article></main>
+<p>Educational fault injection on loopback; these are observed lab events, not production telemetry.
+Each replay step corresponds to one recorded event and shows its sequence and measured relative timestamp.
+Playback holds each event for 1.5 seconds, slowed for reading, not measured runtime.
+“Response started” means the server began writing; only the client’s “response received” confirms receipt.</p>
+<p><a href="events.jsonl">Raw event log</a> · <a href="summary.json">Run summary</a></p></html>

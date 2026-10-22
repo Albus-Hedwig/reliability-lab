@@ -15,6 +15,8 @@ The two runs send the same order and the same idempotency key. Only the service'
 
 The runner checks these outcomes against the actual database. The replay derives its counts and steps from recorded events; it does not script the result shown in this table.
 
+**Recorded example:** [inspect the evidence](examples/observed/) from a [successful Linux/macOS CI run](https://github.com/Albus-Hedwig/reliability-lab/actions/runs/39747027407). Clone or download this repository, then open `examples/observed/index.html` to replay it offline without running Python.
+
 ## Quick start
 
 Requires **Python 3.11+**, Git, and permission to bind a loopback TCP socket. No Python packages, Docker, API keys, or external services are needed.

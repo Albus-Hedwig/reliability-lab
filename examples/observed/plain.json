@@ -1,0 +1,544 @@
+{
+  "version": 1,
+  "title": "RESPONSE LOSS LAB · PLAIN",
+  "simulated": false,
+  "subtitle": "Observed educational fault injection · playback slowed for reading, not measured runtime",
+  "windowTitle": "reliability-lab / observed-events.jsonl",
+  "canvas": {
+    "width": 1240,
+    "height": 550
+  },
+  "nodes": [
+    {
+      "id": "client",
+      "title": "CLIENT",
+      "color": "cyan",
+      "bounds": [
+        40,
+        180,
+        280,
+        300
+      ],
+      "subtitle": "Real HTTP requests",
+      "state": "IDLE",
+      "operation": "No event observed yet"
+    },
+    {
+      "id": "service",
+      "title": "SERVICE",
+      "color": "blue",
+      "bounds": [
+        460,
+        180,
+        310,
+        300
+      ],
+      "subtitle": "Loopback order service",
+      "state": "IDLE",
+      "operation": "No event observed yet"
+    },
+    {
+      "id": "database",
+      "title": "SQLITE",
+      "color": "green",
+      "bounds": [
+        920,
+        180,
+        280,
+        300
+      ],
+      "subtitle": "Persistent order rows",
+      "state": "UNKNOWN",
+      "operation": "No count observed yet"
+    }
+  ],
+  "routes": [
+    {
+      "id": "request",
+      "source": "client",
+      "target": "service",
+      "color": "cyan",
+      "points": [
+        [
+          320,
+          245
+        ],
+        [
+          460,
+          245
+        ]
+      ],
+      "label": "request",
+      "labelAt": [
+        332,
+        229
+      ]
+    },
+    {
+      "id": "drop",
+      "source": "service",
+      "target": "client",
+      "color": "red",
+      "points": [
+        [
+          460,
+          315
+        ],
+        [
+          320,
+          315
+        ]
+      ],
+      "label": "close / lost",
+      "labelAt": [
+        332,
+        299
+      ]
+    },
+    {
+      "id": "response",
+      "source": "service",
+      "target": "client",
+      "color": "blue",
+      "points": [
+        [
+          460,
+          385
+        ],
+        [
+          320,
+          385
+        ]
+      ],
+      "label": "response",
+      "labelAt": [
+        332,
+        369
+      ]
+    },
+    {
+      "id": "write",
+      "source": "service",
+      "target": "database",
+      "color": "green",
+      "points": [
+        [
+          770,
+          245
+        ],
+        [
+          920,
+          245
+        ]
+      ],
+      "label": "commit",
+      "labelAt": [
+        782,
+        229
+      ]
+    },
+    {
+      "id": "read",
+      "source": "database",
+      "target": "service",
+      "color": "purple",
+      "points": [
+        [
+          920,
+          385
+        ],
+        [
+          770,
+          385
+        ]
+      ],
+      "label": "reuse",
+      "labelAt": [
+        782,
+        369
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "event-1",
+      "label": "#1 REQUEST SENT",
+      "shortLabel": "#1",
+      "duration": 1.5,
+      "description": "Observed seq 1 · +0.000000 ms (0 ns) · attempt 1 · client.request_sent\n{}",
+      "activeNodes": [
+        "client"
+      ],
+      "activeRoutes": [
+        "request"
+      ],
+      "nodeStates": {
+        "client": {
+          "state": "SENT",
+          "operation": "request sent",
+          "footer": "Attempt 1 · seq 1"
+        }
+      },
+      "sourceEvent": {
+        "actor": "client",
+        "attempt": 1,
+        "details": {},
+        "event": "request_sent",
+        "scenario": "plain",
+        "seq": 1,
+        "time_ns": 85651146296
+      }
+    },
+    {
+      "id": "event-2",
+      "label": "#2 REQUEST RECEIVED",
+      "shortLabel": "#2",
+      "duration": 1.5,
+      "description": "Observed seq 2 · +3.123289 ms (3123289 ns) · attempt 1 · server.request_received\n{}",
+      "activeNodes": [
+        "service"
+      ],
+      "activeRoutes": [
+        "request"
+      ],
+      "nodeStates": {
+        "service": {
+          "state": "RECEIVED",
+          "operation": "request received",
+          "footer": "Attempt 1 · seq 2"
+        }
+      },
+      "sourceEvent": {
+        "actor": "server",
+        "attempt": 1,
+        "details": {},
+        "event": "request_received",
+        "scenario": "plain",
+        "seq": 2,
+        "time_ns": 85654269585
+      }
+    },
+    {
+      "id": "event-3",
+      "label": "#3 ORDER COMMITTED",
+      "shortLabel": "#3",
+      "duration": 1.5,
+      "description": "Observed seq 3 · +4.395814 ms (4395814 ns) · attempt 1 · server.order_committed\n{\"order_count\": 1, \"order_id\": 1}",
+      "activeNodes": [
+        "service",
+        "database"
+      ],
+      "activeRoutes": [
+        "write"
+      ],
+      "nodeStates": {
+        "service": {
+          "state": "COMMITTED",
+          "operation": "order committed",
+          "footer": "Attempt 1 · seq 3"
+        },
+        "database": {
+          "state": "ROWS: 1",
+          "operation": "1 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "server",
+        "attempt": 1,
+        "details": {
+          "order_count": 1,
+          "order_id": 1
+        },
+        "event": "order_committed",
+        "scenario": "plain",
+        "seq": 3,
+        "time_ns": 85655542110
+      }
+    },
+    {
+      "id": "event-4",
+      "label": "#4 RESPONSE DROPPED",
+      "shortLabel": "#4",
+      "duration": 1.5,
+      "description": "Observed seq 4 · +6.036467 ms (6036467 ns) · attempt 1 · server.response_dropped\n{\"order_id\": 1}",
+      "activeNodes": [
+        "service"
+      ],
+      "activeRoutes": [
+        "drop"
+      ],
+      "nodeStates": {
+        "service": {
+          "state": "DROPPED",
+          "operation": "response dropped",
+          "footer": "Attempt 1 · seq 4"
+        },
+        "database": {
+          "state": "ROWS: 1",
+          "operation": "1 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "server",
+        "attempt": 1,
+        "details": {
+          "order_id": 1
+        },
+        "event": "response_dropped",
+        "scenario": "plain",
+        "seq": 4,
+        "time_ns": 85657182763
+      }
+    },
+    {
+      "id": "event-5",
+      "label": "#5 RESPONSE LOST",
+      "shortLabel": "#5",
+      "duration": 1.5,
+      "description": "Observed seq 5 · +7.607946 ms (7607946 ns) · attempt 1 · client.response_lost\n{\"error\": \"RemoteDisconnected\"}",
+      "activeNodes": [
+        "client"
+      ],
+      "activeRoutes": [
+        "drop"
+      ],
+      "nodeStates": {
+        "client": {
+          "state": "LOST",
+          "operation": "response lost",
+          "footer": "Attempt 1 · seq 5"
+        },
+        "database": {
+          "state": "ROWS: 1",
+          "operation": "1 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "client",
+        "attempt": 1,
+        "details": {
+          "error": "RemoteDisconnected"
+        },
+        "event": "response_lost",
+        "scenario": "plain",
+        "seq": 5,
+        "time_ns": 85658754242
+      }
+    },
+    {
+      "id": "event-6",
+      "label": "#6 RETRY SCHEDULED",
+      "shortLabel": "#6",
+      "duration": 1.5,
+      "description": "Observed seq 6 · +9.467428 ms (9467428 ns) · attempt 2 · client.retry_scheduled\n{}",
+      "activeNodes": [
+        "client"
+      ],
+      "activeRoutes": [],
+      "nodeStates": {
+        "client": {
+          "state": "RETRY",
+          "operation": "retry scheduled",
+          "footer": "Attempt 2 · seq 6"
+        },
+        "database": {
+          "state": "ROWS: 1",
+          "operation": "1 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "client",
+        "attempt": 2,
+        "details": {},
+        "event": "retry_scheduled",
+        "scenario": "plain",
+        "seq": 6,
+        "time_ns": 85660613724
+      }
+    },
+    {
+      "id": "event-7",
+      "label": "#7 REQUEST SENT",
+      "shortLabel": "#7",
+      "duration": 1.5,
+      "description": "Observed seq 7 · +10.185288 ms (10185288 ns) · attempt 2 · client.request_sent\n{}",
+      "activeNodes": [
+        "client"
+      ],
+      "activeRoutes": [
+        "request"
+      ],
+      "nodeStates": {
+        "client": {
+          "state": "SENT",
+          "operation": "request sent",
+          "footer": "Attempt 2 · seq 7"
+        },
+        "database": {
+          "state": "ROWS: 1",
+          "operation": "1 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "client",
+        "attempt": 2,
+        "details": {},
+        "event": "request_sent",
+        "scenario": "plain",
+        "seq": 7,
+        "time_ns": 85661331584
+      }
+    },
+    {
+      "id": "event-8",
+      "label": "#8 REQUEST RECEIVED",
+      "shortLabel": "#8",
+      "duration": 1.5,
+      "description": "Observed seq 8 · +11.298133 ms (11298133 ns) · attempt 2 · server.request_received\n{}",
+      "activeNodes": [
+        "service"
+      ],
+      "activeRoutes": [
+        "request"
+      ],
+      "nodeStates": {
+        "service": {
+          "state": "RECEIVED",
+          "operation": "request received",
+          "footer": "Attempt 2 · seq 8"
+        },
+        "database": {
+          "state": "ROWS: 1",
+          "operation": "1 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "server",
+        "attempt": 2,
+        "details": {},
+        "event": "request_received",
+        "scenario": "plain",
+        "seq": 8,
+        "time_ns": 85662444429
+      }
+    },
+    {
+      "id": "event-9",
+      "label": "#9 ORDER COMMITTED",
+      "shortLabel": "#9",
+      "duration": 1.5,
+      "description": "Observed seq 9 · +12.733472 ms (12733472 ns) · attempt 2 · server.order_committed\n{\"order_count\": 2, \"order_id\": 2}",
+      "activeNodes": [
+        "service",
+        "database"
+      ],
+      "activeRoutes": [
+        "write"
+      ],
+      "nodeStates": {
+        "service": {
+          "state": "COMMITTED",
+          "operation": "order committed",
+          "footer": "Attempt 2 · seq 9"
+        },
+        "database": {
+          "state": "ROWS: 2",
+          "operation": "2 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "server",
+        "attempt": 2,
+        "details": {
+          "order_count": 2,
+          "order_id": 2
+        },
+        "event": "order_committed",
+        "scenario": "plain",
+        "seq": 9,
+        "time_ns": 85663879768
+      }
+    },
+    {
+      "id": "event-10",
+      "label": "#10 RESPONSE STARTED",
+      "shortLabel": "#10",
+      "duration": 1.5,
+      "description": "Observed seq 10 · +13.998666 ms (13998666 ns) · attempt 2 · server.response_started\n{\"order_id\": 2, \"status\": 201}",
+      "activeNodes": [
+        "service"
+      ],
+      "activeRoutes": [
+        "response"
+      ],
+      "nodeStates": {
+        "service": {
+          "state": "SENDING",
+          "operation": "response started",
+          "footer": "Attempt 2 · seq 10"
+        },
+        "database": {
+          "state": "ROWS: 2",
+          "operation": "2 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "server",
+        "attempt": 2,
+        "details": {
+          "order_id": 2,
+          "status": 201
+        },
+        "event": "response_started",
+        "scenario": "plain",
+        "seq": 10,
+        "time_ns": 85665144962
+      }
+    },
+    {
+      "id": "event-11",
+      "label": "#11 RESPONSE RECEIVED",
+      "shortLabel": "#11",
+      "duration": 1.5,
+      "description": "Observed seq 11 · +15.924368 ms (15924368 ns) · attempt 2 · client.response_received\n{\"order_id\": 2, \"status\": 201}",
+      "activeNodes": [
+        "client"
+      ],
+      "activeRoutes": [
+        "response"
+      ],
+      "nodeStates": {
+        "client": {
+          "state": "RECEIVED",
+          "operation": "response received",
+          "footer": "Attempt 2 · seq 11"
+        },
+        "database": {
+          "state": "ROWS: 2",
+          "operation": "2 orders observed",
+          "footer": "Count from recorded persistence event"
+        }
+      },
+      "sourceEvent": {
+        "actor": "client",
+        "attempt": 2,
+        "details": {
+          "order_id": 2,
+          "status": 201
+        },
+        "event": "response_received",
+        "scenario": "plain",
+        "seq": 11,
+        "time_ns": 85667070664
+      }
+    }
+  ]
+}

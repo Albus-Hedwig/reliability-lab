@@ -1,9 +1,15 @@
 # Current status
 
-2026-10-22: First implementation complete. Scope is one real HTTP/SQLite response-loss experiment, with plain and idempotent modes and replay generated from recorded events.
+2026-10-22: Implemented and published the first real HTTP/SQLite response-loss experiment at https://github.com/Albus-Hedwig/reliability-lab. Both modes use a separate service process, durable SQLite orders, an intentional TCP disconnect after commit, one retry, automated outcome checks and event-derived offline replay.
 
-Local Python 3.12 cannot create sockets (`PermissionError: Operation not permitted`). Local database and conversion tests will run here; mandatory HTTP/process tests and the demonstration must pass in GitHub Actions before completion. Do not replace them with mocks or skip them.
+## Verification
 
-17 tests now cover the experiment. Locally, 11 database/replay/output-safety tests pass; 6 HTTP/process tests remain blocked by socket permissions. Compilation passes. Independent review identified and closed one event timestamp ordering issue under write-lock contention; its controlled concurrency regression passes.
+- [CI run 39747027407](https://github.com/Albus-Hedwig/reliability-lab/actions/runs/39747027407), implementation `4350fa1bfa7b7b75c3eeebb8fca6b35e8eeba16c`: Linux/Python 3.11 and macOS/Python 3.12 each passed all 18 tests, with zero skips, then ran the actual CLI successfully. Both observed 2 requests / 2 orders in plain mode and 2 requests / 1 order with idempotency.
+- The initial macOS run exposed reverse DNS blocking server startup. The loopback server now binds without DNS; the complete macOS suite dropped from 183 seconds with a startup failure to 0.772 seconds passing. A DNS-avoidance regression test was added.
+- Independent review found and closed a timestamp ordering issue during SQLite write-lock contention. The controlled concurrency regression passes.
+- Selected the successful Linux artifact under `examples/observed/`, verified its archive digest and checked SQLite rows/events against JSONL, summary and 11-step scenario replays. Provenance is in that directory's README.
+- This local execution sandbox denies all socket creation. Database, conversion, output-safety and DNS-avoidance tests pass here; actual HTTP/process behavior was validated in CI without mocks or skips.
 
-Next: publish to Albus-Hedwig/reliability-lab, run mandatory Linux/macOS CI, inspect actual generated evidence and verify replay in a browser. No HTTP success or observed example is claimed until CI completes.
+## Remaining limitation
+
+The browser policy blocks local `file://` navigation, so interactive playback and visual layout were not manually verified here. Generated pages and source-event conversion pass automated tests. Open `examples/observed/index.html` after cloning to inspect playback. No production deployment, external effects, expiry policy or multi-node guarantees are included in this version.
