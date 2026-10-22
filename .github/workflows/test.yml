@@ -1,0 +1,40 @@
+name: Real HTTP experiment
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  experiment:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: '3.11'
+          - os: macos-latest
+            python: '3.12'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Mandatory real HTTP and SQLite tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Record experiment and build replay
+        run: python3 -m reliability_lab --output runs/demo
+      - name: Summarize observed results
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          summary = json.loads(Path('runs/demo/summary.json').read_text())
+          print(json.dumps(summary, indent=2))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as report:
+              report.write('## Observed HTTP/SQLite results\n\n| Mode | Requests | Orders | Returned order |\n|---|---:|---:|---:|\n')
+              for row in summary['scenarios']:
+                  report.write(f"| {row['mode']} | {row['attempts']} | {row['orders']} | {row['response_order_id']} |\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: experiment-${{ matrix.os }}
+          path: runs/demo/
