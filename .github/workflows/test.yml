@@ -14,8 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ matrix.python }}
       - name: Mandatory real HTTP and SQLite tests
@@ -34,7 +34,7 @@ jobs:
               for row in summary['scenarios']:
                   report.write(f"| {row['mode']} | {row['attempts']} | {row['orders']} | {row['response_order_id']} |\n")
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: experiment-${{ matrix.os }}
           path: runs/demo/

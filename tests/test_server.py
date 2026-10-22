@@ -7,12 +7,24 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from reliability_lab import store
-from reliability_lab.server import RequestError, create_order
+from reliability_lab.server import LoopbackHTTPServer, RequestError, create_order
 
 
 PAYLOAD = {'sku': 'demo-widget', 'quantity': 1}
+
+
+class ServerBindingTests(unittest.TestCase):
+    def test_loopback_bind_does_not_resolve_dns(self):
+        server = LoopbackHTTPServer.__new__(LoopbackHTTPServer)
+        server.server_address = ('127.0.0.1', 12345)
+        with patch('socketserver.TCPServer.server_bind') as bind, patch(
+                'socket.getfqdn', side_effect=AssertionError('unexpected DNS lookup')):
+            server.server_bind()
+        bind.assert_called_once_with(server)
+        self.assertEqual((server.server_name, server.server_port), ('127.0.0.1', 12345))
 
 
 class DatabaseCase(unittest.TestCase):

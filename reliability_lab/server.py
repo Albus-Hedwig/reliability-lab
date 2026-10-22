@@ -4,6 +4,7 @@ import json
 import os
 import re
 import socket
+from socketserver import TCPServer
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from . import store
@@ -52,6 +53,13 @@ def create_order(db_path, mode, payload, key=None, attempt=1):
             db.execute('ROLLBACK')
             raise
     return {'order_id': order_id, 'sku': payload['sku'], 'quantity': payload['quantity']}
+
+
+class LoopbackHTTPServer(ThreadingHTTPServer):
+    def server_bind(self):
+        TCPServer.server_bind(self)
+        # This loopback experiment needs no reverse DNS, which can stall startup.
+        self.server_name, self.server_port = self.server_address[:2]
 
 
 class OrderHandler(BaseHTTPRequestHandler):
@@ -119,7 +127,7 @@ def main():
     parser.add_argument('--mode', required=True, choices=['plain', 'idempotent'])
     parser.add_argument('--port', type=int, default=0)
     args = parser.parse_args()
-    server = ThreadingHTTPServer(('127.0.0.1', args.port), OrderHandler)
+    server = LoopbackHTTPServer(('127.0.0.1', args.port), OrderHandler)
     server.db_path = args.db
     server.mode = args.mode
     print(json.dumps({'port': server.server_port, 'pid': os.getpid(), 'mode': args.mode}), flush=True)
